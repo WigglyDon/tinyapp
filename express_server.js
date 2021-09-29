@@ -7,7 +7,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('view engine', 'ejs');
 
-
 function generateRandomString() {
   //read me
   return Math.random().toString(36).substr(2, 6);
@@ -17,9 +16,6 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-
-
-
 
 app.get("/", (req, res) => {
   res.send("HOMEPAGE");
@@ -34,6 +30,13 @@ app.post("/urls", (req, res) => {
   urlDatabase[urlKey] = req.body.longURL;
   res.redirect(`/urls/${urlKey}`);
   // res.redirect(urlDatabase[urlKey]); 
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL
+  delete urlDatabase[shortURL];
+  res.redirect(`/urls`);
+
 });
 
 app.get("/u/:shortURL", (req, res) => {
