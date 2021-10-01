@@ -9,23 +9,66 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs');
 
-function generateRandomString() {
-  //read me
-  return Math.random().toString(36).substr(2, 6);
-}
-
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+const userDatabase = {
+  "1234@a.a": {
+    id: "1234@a.a",
+    email: "1234@a.a",
+    password: "1"
+  },
+  "5678@a.a": {
+    id: "5678@a.a",
+    email: "5678@a.a",
+    password: "2"
+  },
+
+  "tom": {
+    id: "tom",
+    email: "tom@bombadil.com",
+    password: "goldberry"
+  }
+};
+
+
+
 app.get("/", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/login", (req, res) => {
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+
+app.post("/register", (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send("make sure username and password fields are not empty!");
+    return;
+  }
+  if (!registerNewUser(req.body.username, req.body.email, req.body.password)) {
+    res.status(400).send("user already exists!");
+    return;
+  }
   res.cookie("username", req.body.username);
   res.redirect("/urls");
+});
+
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+app.post("/login", (req, res) => {
+
+  if (validateLoginCredentials(req.body.email, req.body.password)) {
+    res.cookie("username", getUserID(req.body.email));
+    res.redirect("/urls");
+    return;
+  }
+  res.status(403).send("invalid credentials");
+  
 });
 
 app.post("/logout", (req, res) => {
@@ -79,6 +122,62 @@ app.get("/urls.json", (req, res) => {
 app.get("/home", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+
+// -----------------------------------------------------------------
+// helper functions
+
+function registerNewUser(id, email, password) {
+  if (userDatabase[id]) {
+    return false;
+  }
+  for (const user in userDatabase) {
+    if (email === userDatabase[user].email) {
+      return false;
+    }
+  }
+  
+  userDatabase[id] = {id, email, password};
+  return true;
+}
+
+function validateLoginCredentials(email, password) {
+  for (const user in userDatabase) {
+    if (email === userDatabase[user].email) {
+      if (password === userDatabase[user].password) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function getUserID(email) {
+  for (const user in userDatabase) {
+    if (email === userDatabase[user].email) {
+      return userDatabase[user].id;
+    }
+  }
+}
+
+function generateRandomString() {
+  return Math.random().toString(36).substr(2, 6);
+}
+
+
+// const userDatabase = {
+//   "1234@a.a": {
+//     id: "1234@a.a",
+//     email: "1234@a.a",
+//     password: "1"
+//   },
+//   "5678@a.a": {
+//     id: "5678@a.a",
+//     email: "5678@a.a",
+//     password: "2"
+//   }
+// };
+
+// -----------------------------------------------------------------
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
