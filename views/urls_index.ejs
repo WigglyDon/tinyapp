@@ -21,29 +21,40 @@
           <tr>
             <th scope="col">Short URL</th>
             <th scope="col">Long URL</th>
-            <th scope="col">delete</th>
             <th scope="col">edit</th>
+            <th scope="col">delete</th>
           </tr>
         </thead>
         <tbody>
           <% for(let url in urls) { %>
-            <tr>
-              <td>
-                <%= url %>
-              </td>
-              <td>
-                <%= urls[url] %>
-              </td>
-              <td>
-                <form action="/urls/<%= url %>/delete" method="POST">
-                  <button type="submit" class="btn btn-danger">delete</button>
-                </form>
-              </td>
-              <td>
-                <a href="/urls/<%= url %>" class="btn btn-primary">edit</a>
-              </td>
-            </tr>
+            
+            <% if(urls[url].owner ===  username ){ %>
+              <tr>
+                <td>
+                  <%= url %>
+                </td>
+                <td>
+                  <%= urls[url].longURL %>
+                </td>
+          
+                <td>
+                  <a href="/urls/<%= url %>" class="btn btn-primary">edit</a>
+                </td>
+                <td>
+                  <form action="/urls/<%= url %>/delete" method="POST">
+                    <button type="submit" class="btn btn-danger">delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% } else{ %>  
+            
+           <% } %>
+           
+
+
+            
             <% } %>
+
         </tbody>
       </table>
     </main>
