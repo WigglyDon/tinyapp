@@ -8,14 +8,16 @@ The most impressive aspect of this project is the server-side infastructure whic
 
 salted hashing algorithms: user passwords are NEVER stored in plain-text at any point. This is vastly superior to standard password encryption because the algorithm used to hash the data is impossible* to reverse, meaning this is a one way data transformation. When a password is submitted there is no chance of it being leaked, because it simply does not exist on the database (technically it does, but it is a garbled string of nonsense, if you're curious about this and how to protect your users from database breaches I highly recommend reading this https://plaintextoffenders.com/faq/devs).
 
-signed cookie encryption: while not as advanced or secure as the above concept; cookie encryption prevents any malicious users from manipulating their browser cookies in order to impersonate another user and affect their data. A basic feature to implement, however completely essential in any project that incorporates "user-priveledge"; where unique users have a different set of data to manipulate that is independant and private to the other users of the platform.
+signed cookie encryption: while not as advanced or secure as the above concept; cookie encryption prevents any malicious users from manipulating their browser cookies in order to impersonate another user and affect their data. A basic feature to implement, however completely essential in any project that incorporates "user-priveledge"; where each user has a different set of data to manipulate that is independant and private to the other users of the platform.
 
 
 ## Final Product
 
-!["screenshot description"](#)
+!["user registration form"](https://github.com/WigglyDonnie/tinyapp/blob/master/docs/registration-form.png?raw=true)
 
-!["screenshot description"](#)
+!["url editing page"](https://github.com/WigglyDonnie/tinyapp/blob/master/docs/url-edit.png?raw=true)
+
+!["homepage which displays all urls the user has submitted"](https://github.com/WigglyDonnie/tinyapp/blob/master/docs/urls-homepage.png?raw=true)
 
 ## Dependencies
 
