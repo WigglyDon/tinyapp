@@ -38,7 +38,10 @@
                 </td>
           
                 <td>
-                  <a href="/urls/<%= url %>" class="btn btn-primary">edit</a>
+                  <form action="/urls/<%= url %>" method="GET">
+                    <button type="submit" class="btn btn-primary">edit</button>
+                  </form>
+                
                 </td>
                 <td>
                   <form action="/urls/<%= url %>/delete" method="POST">

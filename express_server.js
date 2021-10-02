@@ -6,9 +6,7 @@ const helpers = require('./helpers.js');
 app.use(cookieSession({
   name: 'session',
   keys: ["test"],
-
-  // Cookie Options
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  maxAge: 24 * 60 * 60 * 1000 
 }))
 
 
@@ -19,25 +17,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs');
 
+const urlDatabase = {};
 
-
-const urlDatabase = {
-
-  "82xVn2": {
-    longURL: "http://www.lighthouselabs.ca",
-    owner: "1234@a.a"
-  },
-  "9sm5xK": {
-    longURL: "http://www.google.com",
-    owner: "tom"
-  }
-};
-
-
-
-const userDatabase = {
- 
-};
+const userDatabase = {};
 
 
 
@@ -50,7 +32,8 @@ app.get("/register", (req, res) => {
     res.redirect("/urls");
     return;
   }
-  res.render("register");
+  const templateVars = { username: req.session.username };
+  res.render("register", templateVars);
 });
 
 app.post("/register", (req, res) => {
@@ -71,7 +54,8 @@ app.get("/login", (req, res) => {
     res.redirect("/urls");
     return;
   }
-  res.render("login");
+  const templateVars = { username: req.session.username };
+  res.render("login", templateVars);
 });
 
 app.post("/login", (req, res) => {
@@ -98,6 +82,8 @@ app.get('/urls', (req, res) => {
   const templateVars = { username: currentUser, urls: helpers.urlsForUser(currentUser, urlDatabase) };
   res.render("urls_index", templateVars);
 });
+
+
 
 app.post("/urls", (req, res) => {
   if (!req.session.username) {
@@ -137,7 +123,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   
   const shortURL = req.params.shortURL;
   urlDatabase[shortURL] = {longURL:req.body.longURL, owner:req.session.username};
-  res.redirect(`/urls/${shortURL}`);
+  res.redirect(`/urls`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
