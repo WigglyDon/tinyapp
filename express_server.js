@@ -1,7 +1,7 @@
 const express = require("express");
 const cookieSession = require('cookie-session');
-const bcrypt = require('bcryptjs');
 const app = express();
+const helpers = require('./helpers.js');
 
 app.use(cookieSession({
   name: 'session',
@@ -58,7 +58,7 @@ app.post("/register", (req, res) => {
     res.status(400).send("make sure username and password fields are not empty!");
     return;
   }
-  if (!registerNewUser(req.body.username, req.body.email, req.body.password)) {
+  if (!helpers.registerNewUser(req.body.username, req.body.email, req.body.password, userDatabase)) {
     res.status(400).send("user already exists!");
     return;
   }
@@ -75,8 +75,8 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  if (validateLoginCredentials(req.body.email, req.body.password)) {
-    req.session.username = getUserID(req.body.email);
+  if (helpers.validateLoginCredentials(req.body.email, req.body.password, userDatabase)) {
+    req.session.username = helpers.getUserID(req.body.email, userDatabase);
     res.redirect("/urls");
     return;
   }
@@ -95,7 +95,7 @@ app.get('/urls', (req, res) => {
     return;
   }
   const currentUser = req.session.username;
-  const templateVars = { username: currentUser, urls: urlsForUser(currentUser) };
+  const templateVars = { username: currentUser, urls: helpers.urlsForUser(currentUser, urlDatabase) };
   res.render("urls_index", templateVars);
 });
 
@@ -104,7 +104,7 @@ app.post("/urls", (req, res) => {
     res.redirect("/login");
     return;
   }
-    const urlKey = generateRandomString();
+    const urlKey = helpers.generateRandomString();
     urlDatabase[urlKey] = {longURL:req.body.longURL, owner:req.session.username};
     res.redirect(`/urls/${urlKey}`);
 });
@@ -161,66 +161,6 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(longURL);
   }
 });
-
-
-// -----------------------------------------------------------------
-// helper functions
-
-function registerNewUser(id, email, inputPassword) {
-  if (userDatabase[id]) {
-    return false;
-  }
-  for (const user in userDatabase) {
-    if (email === userDatabase[user].email) {
-      return false;
-    }
-  }
-
-  const password = bcrypt.hashSync(inputPassword, 10);  
-  userDatabase[id] = {id, email, password};
-  return true;
-}
-
-function validateLoginCredentials(email, password) {
-  for (const user in userDatabase) {
-    if (email === userDatabase[user].email) {
-      if (bcrypt.compareSync(password, userDatabase[user].password)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-function getUserID(email) {
-  for (const user in userDatabase) {
-    if (email === userDatabase[user].email) {
-      return userDatabase[user].id;
-    }
-  }
-}
-
-function urlsForUser(id) {
-const ownedUrls = {};
-
-for (const url in urlDatabase) {
-  if (urlDatabase[url].owner === id) {
-    ownedUrls[url] = urlDatabase[url];
-  }
-}
-return ownedUrls;
-};
-
-function generateRandomString() {
-  return Math.random().toString(36).substr(2, 6);
-}
-
-
-// read => req.session.username
-// write => req.session.username = "some value";
-
-
-// -----------------------------------------------------------------
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
