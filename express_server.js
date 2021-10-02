@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require('cookie-parser')
+const bcrypt = require('bcryptjs');
 const app = express();
 app.use(cookieParser());
 const PORT = 8080;
@@ -26,22 +27,7 @@ const urlDatabase = {
 
 
 const userDatabase = {
-  "1234@a.a": {
-    id: "1234@a.a",
-    email: "1234@a.a",
-    password: "1"
-  },
-  "5678@a.a": {
-    id: "5678@a.a",
-    email: "5678@a.a",
-    password: "2"
-  },
-
-  "tom": {
-    id: "tom",
-    email: "tom@bombadil.com",
-    password: "goldberry"
-  }
+ 
 };
 
 
@@ -80,7 +66,6 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-
   if (validateLoginCredentials(req.body.email, req.body.password)) {
     res.cookie("username", getUserID(req.body.email));
     res.redirect("/urls");
@@ -172,7 +157,7 @@ app.get("/u/:shortURL", (req, res) => {
 // -----------------------------------------------------------------
 // helper functions
 
-function registerNewUser(id, email, password) {
+function registerNewUser(id, email, inputPassword) {
   if (userDatabase[id]) {
     return false;
   }
@@ -181,7 +166,8 @@ function registerNewUser(id, email, password) {
       return false;
     }
   }
-  
+
+  const password = bcrypt.hashSync(inputPassword, 10);  
   userDatabase[id] = {id, email, password};
   return true;
 }
@@ -189,7 +175,7 @@ function registerNewUser(id, email, password) {
 function validateLoginCredentials(email, password) {
   for (const user in userDatabase) {
     if (email === userDatabase[user].email) {
-      if (password === userDatabase[user].password) {
+      if (bcrypt.compareSync(password, userDatabase[user].password)) {
         return true;
       }
     }
