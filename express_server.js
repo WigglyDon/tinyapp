@@ -1,8 +1,17 @@
 const express = require("express");
-const cookieParser = require('cookie-parser')
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const app = express();
-app.use(cookieParser());
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ["test"],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
+
+
 const PORT = 8080;
 
 const bodyParser = require("body-parser");
@@ -37,7 +46,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  if (req.cookies["username"]) {
+  if (req.session.username) {
     res.redirect("/urls");
     return;
   }
@@ -53,12 +62,12 @@ app.post("/register", (req, res) => {
     res.status(400).send("user already exists!");
     return;
   }
-  res.cookie("username", req.body.username);
+  req.session.username = req.body.username;
   res.redirect("/urls");
 });
 
 app.get("/login", (req, res) => {
-  if (req.cookies["username"]) {
+  if (req.session.username) {
     res.redirect("/urls");
     return;
   }
@@ -67,7 +76,7 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   if (validateLoginCredentials(req.body.email, req.body.password)) {
-    res.cookie("username", getUserID(req.body.email));
+    req.session.username = getUserID(req.body.email);
     res.redirect("/urls");
     return;
   }
@@ -76,63 +85,63 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  req.session = null;
   res.redirect("/urls");
 });
 
 app.get('/urls', (req, res) => {
-  if (!req.cookies["username"]) {
+  if (!req.session.username) {
     res.redirect("/login");
     return;
   }
-  const currentUser = req.cookies["username"];
-  const templateVars = { username: req.cookies["username"], urls: urlsForUser(currentUser) };
+  const currentUser = req.session.username;
+  const templateVars = { username: currentUser, urls: urlsForUser(currentUser) };
   res.render("urls_index", templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  if (!req.cookies["username"]) {
+  if (!req.session.username) {
     res.redirect("/login");
     return;
   }
     const urlKey = generateRandomString();
-    urlDatabase[urlKey] = {longURL:req.body.longURL, owner:req.cookies["username"]};
+    urlDatabase[urlKey] = {longURL:req.body.longURL, owner:req.session.username};
     res.redirect(`/urls/${urlKey}`);
 });
 
 app.get("/urls/new", (req, res) => {
-  if (!req.cookies["username"]) {
+  if (!req.session.username) {
     res.redirect("/login");
     return;
   }
-  const templateVars = { username: req.cookies["username"]};
+  const templateVars = { username: req.session.username};
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  if (req.cookies["username"] !== urlDatabase[req.params.shortURL].owner) {
+  if (req.session.username !== urlDatabase[req.params.shortURL].owner) {
     res.redirect("/login");
     return;
   }
   
   const shortURL = req.params.shortURL;
-  const templateVars = { username: req.cookies["username"], shortURL: shortURL, longURL: urlDatabase[shortURL].longURL };
+  const templateVars = { username: req.session.username, shortURL: shortURL, longURL: urlDatabase[shortURL].longURL };
   res.render("urls_show", templateVars);
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  if (req.cookies["username"] !== urlDatabase[req.params.shortURL].owner) {
+  if (req.session.username !== urlDatabase[req.params.shortURL].owner) {
     res.redirect("/urls");
     return;
   }
   
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = {longURL:req.body.longURL, owner:req.cookies["username"]};
+  urlDatabase[shortURL] = {longURL:req.body.longURL, owner:req.session.username};
   res.redirect(`/urls/${shortURL}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  if (req.cookies["username"] !== urlDatabase[req.params.shortURL].owner) {
+  if (req.session.username !== urlDatabase[req.params.shortURL].owner) {
     res.redirect("/urls");
     return;
   }
@@ -207,18 +216,9 @@ function generateRandomString() {
 }
 
 
-// const userDatabase = {
-//   "1234@a.a": {
-//     id: "1234@a.a",
-//     email: "1234@a.a",
-//     password: "1"
-//   },
-//   "5678@a.a": {
-//     id: "5678@a.a",
-//     email: "5678@a.a",
-//     password: "2"
-//   }
-// };
+// read => req.session.username
+// write => req.session.username = "some value";
+
 
 // -----------------------------------------------------------------
 
