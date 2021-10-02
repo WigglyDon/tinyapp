@@ -9,8 +9,8 @@ function registerNewUser(id, email, inputPassword, database) {
       return false;
     }
   }
-  const password = bcrypt.hashSync(inputPassword, 10);  
-  database[id] = {id, email, password};
+  const password = bcrypt.hashSync(inputPassword, 10);
+  database[id] = { id, email, password };
   return true;
 }
 
@@ -34,15 +34,14 @@ function getUserID(email, database) {
 }
 
 function urlsForUser(id, database) {
-const ownedUrls = {};
-
-for (const url in database) {
-  if (database[url].owner === id) {
-    ownedUrls[url] = database[url];
+  const ownedUrls = {};
+  for (const url in database) {
+    if (database[url].owner === id) {
+      ownedUrls[url] = database[url];
+    }
   }
+  return ownedUrls;
 }
-return ownedUrls;
-};
 
 function generateRandomString() {
   return Math.random().toString(36).substr(2, 6);
@@ -54,4 +53,4 @@ module.exports = {
   getUserID,
   urlsForUser,
   generateRandomString
-}
+};
