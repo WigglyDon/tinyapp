@@ -22,39 +22,39 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  if (req.session.username) {
+  if (req.session.email) {
     res.redirect("/urls");
     return;
   }
-  const templateVars = { username: req.session.username };
+  const templateVars = { email: req.session.email };
   res.render("register", templateVars);
 });
 
 app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) {
-    res.status(400).send("make sure username and password fields are not empty!");
+    res.status(400).send("make sure email and password fields are not empty!");
     return;
   }
-  if (!helpers.registerNewUser(req.body.username, req.body.email, req.body.password, userDatabase)) {
+  if (!helpers.registerNewUser(req.body.email, req.body.email, req.body.password, userDatabase)) {
     res.status(400).send("user already exists!");
     return;
   }
-  req.session.username = req.body.username;
+  req.session.email = req.body.email;
   res.redirect("/urls");
 });
 
 app.get("/login", (req, res) => {
-  if (req.session.username) {
+  if (req.session.email) {
     res.redirect("/urls");
     return;
   }
-  const templateVars = { username: req.session.username };
+  const templateVars = { email: req.session.email };
   res.render("login", templateVars);
 });
 
 app.post("/login", (req, res) => {
   if (helpers.validateLoginCredentials(req.body.email, req.body.password, userDatabase)) {
-    req.session.username = helpers.getUserID(req.body.email, userDatabase);
+    req.session.email = helpers.getUserID(req.body.email, userDatabase);
     res.redirect("/urls");
     return;
   }
@@ -67,56 +67,56 @@ app.post("/logout", (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  if (!req.session.username) {
-    res.redirect("/login");
+  if (!req.session.email) {
+    res.status(403).send("please log in");
     return;
   }
-  const currentUser = req.session.username;
-  const templateVars = { username: currentUser, urls: helpers.urlsForUser(currentUser, urlDatabase) };
+  const currentUser = req.session.email;
+  const templateVars = { email: currentUser, urls: helpers.urlsForUser(currentUser, urlDatabase) };
   res.render("urls_index", templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  if (!req.session.username) {
-    res.redirect("/login");
+  if (!req.session.email) {
+    res.status(403).send("please log in");
     return;
   }
   const urlKey = helpers.generateRandomString();
-  urlDatabase[urlKey] = { longURL: req.body.longURL, owner: req.session.username };
+  urlDatabase[urlKey] = { longURL: req.body.longURL, owner: req.session.email };
   res.redirect(`/urls/${urlKey}`);
 });
 
 app.get("/urls/new", (req, res) => {
-  if (!req.session.username) {
-    res.redirect("/login");
+  if (!req.session.email) {
+    res.status(403).send("please log in");
     return;
   }
-  const templateVars = { username: req.session.username };
+  const templateVars = { email: req.session.email };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  if (req.session.username !== urlDatabase[req.params.shortURL].owner) {
-    res.redirect("/login");
+  if (req.session.email !== urlDatabase[req.params.shortURL].owner) {
+    res.status(403).send("please log in");
     return;
   }
   const shortURL = req.params.shortURL;
-  const templateVars = { username: req.session.username, shortURL: shortURL, longURL: urlDatabase[shortURL].longURL };
+  const templateVars = { email: req.session.email, shortURL: shortURL, longURL: urlDatabase[shortURL].longURL };
   res.render("urls_show", templateVars);
 });
 
-app.post("/urls/:shortURL/edit", (req, res) => {
-  if (req.session.username !== urlDatabase[req.params.shortURL].owner) {
+app.post("/urls/:shortURL", (req, res) => {
+  if (req.session.email !== urlDatabase[req.params.shortURL].owner) {
     res.redirect("/urls");
     return;
   }
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = { longURL: req.body.longURL, owner: req.session.username };
+  urlDatabase[shortURL] = { longURL: req.body.longURL, owner: req.session.email };
   res.redirect(`/urls`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  if (req.session.username !== urlDatabase[req.params.shortURL].owner) {
+  if (req.session.email !== urlDatabase[req.params.shortURL].owner) {
     res.redirect("/urls");
     return;
   }
