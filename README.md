@@ -3,10 +3,9 @@
 This project was built upon [Node](https://nodejs.org/en/) and [Express](https://expressjs.com/). In essence it is the exact same thing as a traditional URL shortener, however, much more watered down with the goal of training me on the back end of full stack web development.
 
 This is my very first full stack web application! I started and finished this project within my third week attending Lighthouse Labs. I have very minimal programming experience prior to starting school here; so when evaluating this in the future I would ask that you *please* keep that in mind :) 
-#
 
-###### Note: Front end development starts next week and I would like to beautify the app in the future when I have more time... so if you are reading this it means that you are witnessing the original version in all it's glory :D
-#
+
+
 
 The most impressive aspect of this project is the server-side infrastructure which handles the protection of user information through the use of both:
 
@@ -16,7 +15,8 @@ The most impressive aspect of this project is the server-side infrastructure whi
 
 
 ## v1.0.1 screenshots
-
+###### Note: Front end development starts next week and I would like to beautify the app in the future when I have more time... so if you are reading this it means that you are witnessing the original version in all it's glory :D
+#
 !["user registration form"](https://github.com/WigglyDonnie/tinyapp/blob/master/docs/registration-form.png?raw=true)
 
 !["url editing page"](https://github.com/WigglyDonnie/tinyapp/blob/master/docs/url-edit.png?raw=true)
