@@ -17,13 +17,13 @@ The most impressive aspect of this project is the server-side infrastructure whi
 ## v1.0.1 screenshots
 ###### Note: Front end development starts next week and I would like to beautify the app in the future when I have more time... so if you are reading this it means that you are witnessing the original version in all it's glory :D
 #
-!["user registration form"]()
+!["user registration form"](https://github.com/WigglyDonnie/tinyapp/blob/master/docs/failed_login.png?raw=true)
 
-!["url editing page"]()
+!["url editing page"](https://github.com/WigglyDonnie/tinyapp/blob/master/docs/edit_page.png?raw=true)
 
-!["homepage which displays all urls the user has submitted"]()
+!["homepage which displays all urls the user has submitted"](https://github.com/WigglyDonnie/tinyapp/blob/master/docs/myURLs_page.png?raw=true)
 
-!["new url page"]()
+!["new url page"](https://github.com/WigglyDonnie/tinyapp/blob/master/docs/new_page.png?raw=true)
 
 ## Dependencies
 
